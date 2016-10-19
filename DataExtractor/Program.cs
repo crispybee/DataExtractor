@@ -20,6 +20,46 @@ namespace DataExtractor
     public class Program
     {
         /// <summary>
+        /// The phone name 1.
+        /// </summary>
+        private const string PhoneName1 = "Tim";
+
+        /// <summary>
+        /// The phone name 2.
+        /// </summary>
+        private const string PhoneName2 = "Andi";
+
+        /// <summary>
+        /// The phone name 3.
+        /// </summary>
+        private const string PhoneName3 = "Kemal";
+
+        /// <summary>
+        /// The phone name 4.
+        /// </summary>
+        private const string PhoneName4 = "Thomas";
+
+        /// <summary>
+        /// The phone data of Andreas.
+        /// </summary>
+        private static readonly List<PhoneData> AndiPhoneData = new List<PhoneData>();
+
+        /// <summary>
+        /// The tim phone data.
+        /// </summary>
+        private static readonly List<PhoneData> TimPhoneData = new List<PhoneData>();
+
+        /// <summary>
+        /// The phone data of Kemal.
+        /// </summary>
+        private static readonly List<PhoneData> KemalPhoneData = new List<PhoneData>();
+
+        /// <summary>
+        /// The Thomas phone data.
+        /// </summary>
+        private static readonly List<PhoneData> ThomasPhoneData = new List<PhoneData>();
+
+        /// <summary>
         /// The main.
         /// </summary>
         /// <param name="args">
@@ -27,6 +67,11 @@ namespace DataExtractor
         /// </param>
         private static void Main(string[] args)
         {
+            Directory.CreateDirectory("Tim");
+            Directory.CreateDirectory("Andi");
+            Directory.CreateDirectory("Kemal");
+            Directory.CreateDirectory("Thomas");
+
             var reader = new StreamReader(File.OpenRead(@"VS.csv"));
             
             var timestamp = new List<string>();
@@ -34,55 +79,123 @@ namespace DataExtractor
             var mac = new List<string>();
             var distance = new List<string>();
 
-            var andiPhoneData = new List<PhoneData>();
-            var timPhoneData = new List<PhoneData>();
-
             // Get only relevant values
             while (!reader.EndOfStream)
             {
                 var line = reader.ReadLine();
-                var values = line.Split(';');
+                if (line != null)
+                {
+                    var values = line.Split(';');
 
-                timestamp.Add(values[1]);
-                id.Add(values[2]);
-                mac.Add(values[4]);
-                distance.Add(values[5]);
+                    timestamp.Add(values[1]);
+                    id.Add(values[2]);
+                    mac.Add(values[4]);
+                    distance.Add(values[5]);
+                }
             }
 
             // Split phones to individual lists
             for (int i = 0; i < timestamp.Count; i++)
             {
-                if (id[i] == "Tim")
+                if (id[i] == PhoneName1)
                 {
-                    timPhoneData.Add(new PhoneData(timestamp[i], mac[i], distance[i]));
+                    TimPhoneData.Add(new PhoneData(timestamp[i], mac[i], distance[i]));
                 }
-                else if (id[i] == "Andi")
+                else if (id[i] == PhoneName2)
                 {
-                    andiPhoneData.Add(new PhoneData(timestamp[i], mac[i], distance[i]));
+                    AndiPhoneData.Add(new PhoneData(timestamp[i], mac[i], distance[i]));
+                }
+                else if (id[i] == PhoneName3)
+                {
+                    KemalPhoneData.Add(new PhoneData(timestamp[i], mac[i], distance[i]));
+                }
+                else if (id[i] == PhoneName4)
+                {
+                    ThomasPhoneData.Add(new PhoneData(timestamp[i], mac[i], distance[i]));
                 }
             }
 
-            var macListArray = new List<List<PhoneData>>();
+            var macListArrayTim = new List<List<PhoneData>>();
+            var macListArrayAndi = new List<List<PhoneData>>();
+            var macListArrayKemal = new List<List<PhoneData>>();
+            var macListArrayThomas = new List<List<PhoneData>>();
 
-            // group list by mac adress
-            foreach (var phoneDataMacList in timPhoneData.GroupBy(x => x.Mac))
+            // group list by mac adress by Tim
+            foreach (var phoneDataMacList in TimPhoneData.GroupBy(x => x.Mac))
             {
                 var groupedMacList = phoneDataMacList.ToList();
-                macListArray.Add(groupedMacList);
+                macListArrayTim.Add(groupedMacList);
             }
 
-            for (int i = 0; i < macListArray.Count; i++)
+            // group list by mac adress by Andi
+            foreach (var phoneDataMacList in AndiPhoneData.GroupBy(x => x.Mac))
             {
-                var writer = new StreamWriter(File.OpenWrite(i + @".csv"));
+                var groupedMacList = phoneDataMacList.ToList();
+                macListArrayAndi.Add(groupedMacList);
+            }
 
-                foreach (var phoneData in macListArray[i])
+            // group list by mac adress by Kemal
+            foreach (var phoneDataMacList in KemalPhoneData.GroupBy(x => x.Mac))
+            {
+                var groupedMacList = phoneDataMacList.ToList();
+                macListArrayKemal.Add(groupedMacList);
+            }
+
+            // group list by mac adress by Thomas
+            foreach (var phoneDataMacList in ThomasPhoneData.GroupBy(x => x.Mac))
+            {
+                var groupedMacList = phoneDataMacList.ToList();
+                macListArrayThomas.Add(groupedMacList);
+            }
+
+            for (int i = 0; i < macListArrayTim.Count; i++)
+            {
+                var writer = new StreamWriter(File.OpenWrite(PhoneName1 + "\\" + i + @".csv"));
+
+                foreach (var phoneData in macListArrayTim[i])
                 {
                     writer.WriteLine(phoneData.Timestamp + ";" + phoneData.Mac + ";" + phoneData.Distance);
                 }
 
                 writer.Close();
             }
-            
+
+            for (int i = 0; i < macListArrayAndi.Count; i++)
+            {
+                var writer = new StreamWriter(File.OpenWrite(PhoneName2 + "\\" + i + @".csv"));
+
+                foreach (var phoneData in macListArrayAndi[i])
+                {
+                    writer.WriteLine(phoneData.Timestamp + ";" + phoneData.Mac + ";" + phoneData.Distance);
+                }
+
+                writer.Close();
+            }
+
+            for (int i = 0; i < macListArrayKemal.Count; i++)
+            {
+                var writer = new StreamWriter(File.OpenWrite(PhoneName3 + "\\" + i + @".csv"));
+
+                foreach (var phoneData in macListArrayKemal[i])
+                {
+                    writer.WriteLine(phoneData.Timestamp + ";" + phoneData.Mac + ";" + phoneData.Distance);
+                }
+
+                writer.Close();
+            }
+
+            for (int i = 0; i < macListArrayThomas.Count; i++)
+            {
+                var writer = new StreamWriter(File.OpenWrite(PhoneName4 + "\\" + i + @".csv"));
+
+                foreach (var phoneData in macListArrayThomas[i])
+                {
+                    writer.WriteLine(phoneData.Timestamp + ";" + phoneData.Mac + ";" + phoneData.Distance);
+                }
+
+                writer.Close();
+            }
+
             Console.WriteLine("END");
         }
     }
