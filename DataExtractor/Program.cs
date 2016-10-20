@@ -20,46 +20,6 @@ namespace DataExtractor
     public class Program
     {
         /// <summary>
-        /// The phone name 1.
-        /// </summary>
-        private const string PhoneName1 = "Tim";
-
-        /// <summary>
-        /// The phone name 2.
-        /// </summary>
-        private const string PhoneName2 = "Andi";
-
-        /// <summary>
-        /// The phone name 3.
-        /// </summary>
-        private const string PhoneName3 = "Kemal";
-
-        /// <summary>
-        /// The phone name 4.
-        /// </summary>
-        private const string PhoneName4 = "Thomas";
-
-        /// <summary>
-        /// The phone data of Andreas.
-        /// </summary>
-        private static readonly List<PhoneData> AndiPhoneData = new List<PhoneData>();
-
-        /// <summary>
-        /// The tim phone data.
-        /// </summary>
-        private static readonly List<PhoneData> TimPhoneData = new List<PhoneData>();
-
-        /// <summary>
-        /// The phone data of Kemal.
-        /// </summary>
-        private static readonly List<PhoneData> KemalPhoneData = new List<PhoneData>();
-
-        /// <summary>
-        /// The Thomas phone data.
-        /// </summary>
-        private static readonly List<PhoneData> ThomasPhoneData = new List<PhoneData>();
-
-        /// <summary>
         /// The all client phone data list.
         /// </summary>
         private static readonly List<ClientData> AllClientPhoneDataList = new List<ClientData>();
@@ -86,10 +46,6 @@ namespace DataExtractor
             var id = new List<string>();
             var mac = new List<string>();
             var distance = new List<string>();
-            var roomListArrayTim = new List<List<PhoneData>>();
-            var roomListArrayAndi = new List<List<PhoneData>>();
-            var roomListArrayKemal = new List<List<PhoneData>>();
-            var roomListArrayThomas = new List<List<PhoneData>>();
             var phoneIdList = new List<string>();
 
             // Get only relevant values
@@ -134,6 +90,7 @@ namespace DataExtractor
                 }
             }
 
+            // Inject and order all the data into FinalDataList
             foreach (var clientData in AllClientPhoneDataList)
             {
                 FinalDataList.Add(new ClientRoomData(clientData.ClientName, new List<RoomData>()));
@@ -141,48 +98,30 @@ namespace DataExtractor
                 foreach (var roomGroup in clientData.PhoneData.GroupBy(x => x.Room))
                 {
                     var roomList = roomGroup.ToList();
-                    var convertedRoomListToWifiDataList = new List<WifiData>();
-
-                    foreach (var phoneData in roomList)
+                    var accessPointList = new List<AccessPoint>();
+                    
+                    foreach (var macGroup in roomList.GroupBy(x => x.Mac))
                     {
-                        convertedRoomListToWifiDataList.Add(new WifiData(phoneData.Timestamp, phoneData.Mac, phoneData.Distance));
+                        var macList = macGroup.ToList();
+                        var convertedRoomMacListToWifiDataList = new List<WifiData>();
+
+                        foreach (var phoneData in macList)
+                        {
+                            convertedRoomMacListToWifiDataList.Add(new WifiData(phoneData.Timestamp, phoneData.Mac, phoneData.Distance));
+                        }
+
+                        var accessPoint = new AccessPoint(macGroup.Key, convertedRoomMacListToWifiDataList);
+                        accessPointList.Add(accessPoint);
                     }
 
                     // todo: insert the AccessPoint class
-                    RoomData roomData = new RoomData(roomGroup.Key, convertedRoomListToWifiDataList);
+                    var roomData = new RoomData(roomGroup.Key, accessPointList);
 
                     FinalDataList.Last().RoomData.Add(roomData);
                 }
             }
 
-            // group list by mac adress by Tim
-            foreach (var phoneDataMacList in TimPhoneData.GroupBy(x => x.Room))
-            {
-                var groupedMacList = phoneDataMacList.ToList();
-                roomListArrayTim.Add(groupedMacList);
-            }
-
-            // group list by mac adress by Andi
-            foreach (var phoneDataMacList in AndiPhoneData.GroupBy(x => x.Room))
-            {
-                var groupedMacList = phoneDataMacList.ToList();
-                roomListArrayAndi.Add(groupedMacList);
-            }
-
-            // group list by mac adress by Kemal
-            foreach (var phoneDataMacList in KemalPhoneData.GroupBy(x => x.Room))
-            {
-                var groupedMacList = phoneDataMacList.ToList();
-                roomListArrayKemal.Add(groupedMacList);
-            }
-
-            // group list by mac adress by Thomas
-            foreach (var phoneDataMacList in ThomasPhoneData.GroupBy(x => x.Room))
-            {
-                var groupedMacList = phoneDataMacList.ToList();
-                roomListArrayThomas.Add(groupedMacList);
-            }
-
+            /*
             int h = 0;
             var listOfGroupedRoomsAndGroupedMacs = new List<PhoneData>();
 
@@ -214,55 +153,6 @@ namespace DataExtractor
             }
 
             Console.WriteLine(listOfGroupedRoomsAndGroupedMacs);
-            /*
-
-            for (int i = 0; i < roomListArrayTim.Count; i++)
-            {
-                var writer = new StreamWriter(File.OpenWrite(PhoneName1 + "\\" + i + @".csv"));
-
-                foreach (var phoneData in roomListArrayTim[i])
-                {
-                    writer.WriteLine(phoneData.Timestamp + ";" + phoneData.Room + ";" + phoneData.Mac + ";" + phoneData.Distance);
-                }
-
-                writer.Close();
-            }
-
-            for (int i = 0; i < roomListArrayAndi.Count; i++)
-            {
-                var writer = new StreamWriter(File.OpenWrite(PhoneName2 + "\\" + i + @".csv"));
-
-                foreach (var phoneData in roomListArrayAndi[i])
-                {
-                    writer.WriteLine(phoneData.Timestamp + ";" + phoneData.Room + ";" + phoneData.Mac + ";" + phoneData.Distance);
-                }
-
-                writer.Close();
-            }
-
-            for (int i = 0; i < roomListArrayKemal.Count; i++)
-            {
-                var writer = new StreamWriter(File.OpenWrite(PhoneName3 + "\\" + i + @".csv"));
-
-                foreach (var phoneData in roomListArrayKemal[i])
-                {
-                    writer.WriteLine(phoneData.Timestamp + ";" + phoneData.Room + ";" + phoneData.Mac + ";" + phoneData.Distance);
-                }
-
-                writer.Close();
-            }
-
-            for (int i = 0; i < roomListArrayThomas.Count; i++)
-            {
-                var writer = new StreamWriter(File.OpenWrite(PhoneName4 + "\\" + i + @".csv"));
-
-                foreach (var phoneData in roomListArrayThomas[i])
-                {
-                    writer.WriteLine(phoneData.Timestamp + ";" + phoneData.Room + ";" + phoneData.Mac + ";" + phoneData.Distance);
-                }
-
-                writer.Close();
-            }
             */
 
             // excelChartCreator.CreateTable();

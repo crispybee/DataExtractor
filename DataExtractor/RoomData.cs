@@ -22,19 +22,19 @@ namespace DataExtractor
         /// <param name="roomName">
         /// The room name.
         /// </param>
-        /// <param name="wifiData">
-        /// The wi-fi data.
+        /// <param name="accessPointList">
+        /// The access Point List.
         /// </param>
-        public RoomData(string roomName, List<WifiData> wifiData)
+        public RoomData(string roomName, List<AccessPoint> accessPointList)
         {
             this.RoomName = roomName;
-            this.WifiData = wifiData;
+            this.AccessPointList = accessPointList;
         }
 
         /// <summary>
         /// Gets the wi-fi data.
         /// </summary>
-        public List<WifiData> WifiData { get; }
+        public List<AccessPoint> AccessPointList { get; }
 
         /// <summary>
         /// Gets or sets the room name.
