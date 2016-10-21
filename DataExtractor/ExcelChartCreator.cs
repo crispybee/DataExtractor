@@ -66,24 +66,49 @@ namespace DataExtractor
 
                     newSheet.Name = filteredName;
 
+                    // var accessPointExcelPositionCounter = 0;
                     for (int accessPointIndex = 0; accessPointIndex < room.AccessPointList.Count; accessPointIndex++)
                     {
                         var accessPoint = room.AccessPointList[accessPointIndex];
-                        var accessPointExcelPositionCounter = accessPointIndex * 4;
 
+                        // accessPointExcelPositionCounter = accessPointIndex * 4;
                         int wifiDataCounter = 1;
 
                         foreach (var wifiData in accessPoint.WifiData)
                         {
+                            // To inject all of it (decomment accessPointExcelPositionCounter lines!)
+                            /*
                             newSheet.Cells[wifiDataCounter, 1 + accessPointExcelPositionCounter] = wifiData.Timestamp;
                             newSheet.Cells[wifiDataCounter, 2 + accessPointExcelPositionCounter] = wifiData.Mac;
                             newSheet.Cells[wifiDataCounter, 3 + accessPointExcelPositionCounter] = wifiData.Distance;
+                            */
+
+                            newSheet.Cells[wifiDataCounter, 1 + accessPointIndex] = wifiData.Distance;
 
                             wifiDataCounter++;
                         }
                     }
 
                     // todo: draw line diagram
+                    int highestAccessPointsCount = room.AccessPointList.Count;
+                    int highestWifiDataCount = 0;
+
+                    foreach (var accessPoint in room.AccessPointList)
+                    {
+                        if (accessPoint.WifiData.Count > highestWifiDataCount)
+                        {
+                            highestWifiDataCount = accessPoint.WifiData.Count;
+                        }
+                    }
+                    
+                    Excel.ChartObjects excelCharts = (Excel.ChartObjects)newSheet.ChartObjects(Type.Missing);
+                    Excel.ChartObject chart = excelCharts.Add(10, 80, 300, 250);
+                    Excel.Chart chartPage = chart.Chart;
+
+                    var chartRange = newSheet.Range["A1", this.GetExcelColumnName(highestAccessPointsCount) + highestWifiDataCount];
+
+                    chartPage.SetSourceData(chartRange, misValue);
+                    chartPage.ChartType = Excel.XlChartType.xlLineMarkers;
 
                     ReleaseObject(newSheet);
                 }
@@ -131,6 +156,30 @@ namespace DataExtractor
 
             excel.Quit();
             ReleaseObject(excel);
+        }
+
+        /// <summary>
+        /// The get excel column name.
+        /// </summary>
+        /// <param name="columnNumber">
+        /// The column number.
+        /// </param>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
+        private string GetExcelColumnName(int columnNumber)
+        {
+            int dividend = columnNumber;
+            string columnName = string.Empty;
+
+            while (dividend > 0)
+            {
+                int modulo = (dividend - 1) % 26;
+                columnName = Convert.ToChar(65 + modulo) + columnName;
+                dividend = (int)((dividend - modulo) / 26);
+            }
+
+            return columnName;
         }
 
         /// <summary>
