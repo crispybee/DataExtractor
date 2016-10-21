@@ -32,13 +32,13 @@ namespace DataExtractor
         }
 
         /// <summary>
-        /// Gets or sets the client name.
+        /// Gets the client name.
         /// </summary>
-        public string ClientName { get; set; }
+        public string ClientName { get; }
 
         /// <summary>
-        /// Gets or sets the data.
+        /// Gets the data.
         /// </summary>
-        public List<RoomData> RoomData { get; set; }
+        public List<RoomData> RoomData { get; }
     }
 }

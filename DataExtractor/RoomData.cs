@@ -37,8 +37,8 @@ namespace DataExtractor
         public List<AccessPoint> AccessPointList { get; }
 
         /// <summary>
-        /// Gets or sets the room name.
+        /// Gets the room name.
         /// </summary>
-        public string RoomName { get; set; }
+        public string RoomName { get; }
     }
 }

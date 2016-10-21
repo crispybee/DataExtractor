@@ -27,7 +27,7 @@ namespace DataExtractor
         /// <param name="distance">
         /// The distance.
         /// </param>
-        public WifiData(long timestamp, string mac, double distance)
+        public WifiData(long timestamp, string mac, float distance)
         {
             this.Timestamp = timestamp;
             this.Mac = mac;
@@ -47,6 +47,6 @@ namespace DataExtractor
         /// <summary>
         /// Gets the distance.
         /// </summary>
-        public double Distance { get; }
+        public float Distance { get; }
     }
 }

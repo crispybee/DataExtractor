@@ -55,6 +55,6 @@ namespace DataExtractor
         /// <summary>
         /// Gets the distance.
         /// </summary>
-        public double Distance { get; }
+        public float Distance { get; }
     }
 }

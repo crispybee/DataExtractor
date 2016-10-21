@@ -32,13 +32,13 @@ namespace DataExtractor
         }
 
         /// <summary>
-        /// Gets or sets the mac.
+        /// Gets the mac.
         /// </summary>
-        public string Mac { get; set; }
+        public string Mac { get; }
 
         /// <summary>
-        /// Gets or sets the wi-fi data.
+        /// Gets the wi-fi data.
         /// </summary>
-        public List<WifiData> WifiData { get; set; }
+        public List<WifiData> WifiData { get; }
     }
 }

@@ -114,7 +114,6 @@ namespace DataExtractor
                         accessPointList.Add(accessPoint);
                     }
 
-                    // todo: insert the AccessPoint class
                     var roomData = new RoomData(roomGroup.Key, accessPointList);
 
                     FinalDataList.Last().RoomData.Add(roomData);
