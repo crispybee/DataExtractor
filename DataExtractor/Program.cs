@@ -71,7 +71,6 @@ namespace DataExtractor
                 {
                     phoneIdList.Add(name);
                     AllClientPhoneDataList.Add(new ClientData(name, new List<PhoneData>()));
-                    Directory.CreateDirectory(name);
                 }
             }
 
@@ -119,6 +118,37 @@ namespace DataExtractor
                     FinalDataList.Last().RoomData.Add(roomData);
                 }
             }
+            
+            // todo: write to files
+
+            foreach (var client in FinalDataList)
+            {
+                // for every client create a folder
+                Directory.CreateDirectory(client.ClientName);
+
+                foreach (var room in client.RoomData)
+                {
+                    // for every room of every client create subfolders
+                    Directory.CreateDirectory(client.ClientName + "\\" + room.RoomName);
+
+                    int counter = 0;
+
+                    foreach (var accessPoint in room.AccessPointList)
+                    {
+                        string t = client.ClientName + "\\" + room.RoomName + "\\" + counter + ".csv";
+                        var writer = new StreamWriter(File.OpenWrite(t));
+
+                        foreach (WifiData wifiData in accessPoint.WifiData)
+                        {
+                            writer.WriteLine(wifiData.Timestamp + ";" + wifiData.Mac + ";" + wifiData.Distance);
+                        }
+
+                        writer.Close();
+
+                        counter++;
+                    }
+                }
+            }
 
             /*
             int h = 0;
@@ -153,7 +183,6 @@ namespace DataExtractor
 
             Console.WriteLine(listOfGroupedRoomsAndGroupedMacs);
             */
-
             // excelChartCreator.CreateTable();
             Console.WriteLine("END");
         }
