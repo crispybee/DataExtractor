@@ -89,7 +89,6 @@ namespace DataExtractor
                         }
                     }
 
-                    // todo: draw line diagram
                     int highestAccessPointsCount = room.AccessPointList.Count;
                     int highestWifiDataCount = 0;
 
@@ -101,13 +100,14 @@ namespace DataExtractor
                         }
                     }
                     
+                    // todo: force to always take data in columns
                     Excel.ChartObjects excelCharts = (Excel.ChartObjects)newSheet.ChartObjects(Type.Missing);
                     Excel.ChartObject chart = excelCharts.Add(10, 80, 300, 250);
                     Excel.Chart chartPage = chart.Chart;
 
                     var chartRange = newSheet.Range["A1", this.GetExcelColumnName(highestAccessPointsCount) + highestWifiDataCount];
 
-                    chartPage.SetSourceData(chartRange, misValue);
+                    chartPage.SetSourceData(chartRange, Excel.XlRowCol.xlColumns);
                     chartPage.ChartType = Excel.XlChartType.xlLineMarkers;
 
                     ReleaseObject(newSheet);
@@ -159,30 +159,6 @@ namespace DataExtractor
         }
 
         /// <summary>
-        /// The get excel column name.
-        /// </summary>
-        /// <param name="columnNumber">
-        /// The column number.
-        /// </param>
-        /// <returns>
-        /// The <see cref="string"/>.
-        /// </returns>
-        private string GetExcelColumnName(int columnNumber)
-        {
-            int dividend = columnNumber;
-            string columnName = string.Empty;
-
-            while (dividend > 0)
-            {
-                int modulo = (dividend - 1) % 26;
-                columnName = Convert.ToChar(65 + modulo) + columnName;
-                dividend = (int)((dividend - modulo) / 26);
-            }
-
-            return columnName;
-        }
-
-        /// <summary>
         /// The release object.
         /// </summary>
         /// <param name="obj">
@@ -202,6 +178,30 @@ namespace DataExtractor
             {
                 GC.Collect();
             }
+        }
+
+        /// <summary>
+        /// The get excel column name.
+        /// </summary>
+        /// <param name="columnNumber">
+        /// The column number.
+        /// </param>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
+        private string GetExcelColumnName(int columnNumber)
+        {
+            int dividend = columnNumber;
+            string columnName = string.Empty;
+
+            while (dividend > 0)
+            {
+                int modulo = (dividend - 1) % 26;
+                columnName = Convert.ToChar(65 + modulo) + columnName;
+                dividend = (dividend - modulo) / 26;
+            }
+
+            return columnName;
         }
     }
 }
