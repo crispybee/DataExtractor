@@ -1,27 +1,25 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="PhoneData.cs" company="-">
+// <copyright file="WifiData.cs" company="-">
 //   Tim Schlagenhaufer
 // </copyright>
 // <summary>
-//   The phone data.
+//   The wifi data.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
 namespace DataExtractor
 {
     /// <summary>
-    /// The phone data.
+    /// The wi-fi data.
     /// </summary>
-    public class PhoneData
+    public class WifiData
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="WifiData"/> class. 
         /// Initializes a new instance of the <see cref="PhoneData"/> class.
         /// </summary>
         /// <param name="timestamp">
         /// The timestamp.
-        /// </param>
-        /// <param name="room">
-        /// The room.
         /// </param>
         /// <param name="mac">
         /// The mac.
@@ -29,18 +27,12 @@ namespace DataExtractor
         /// <param name="distance">
         /// The distance.
         /// </param>
-        public PhoneData(string timestamp, string room, string mac, string distance)
+        public WifiData(long timestamp, string mac, float distance)
         {
-            this.Timestamp = long.Parse(timestamp);
-            this.Room = room;
+            this.Timestamp = timestamp;
             this.Mac = mac;
-            this.Distance = float.Parse(distance);
+            this.Distance = distance;
         }
-
-        /// <summary>
-        /// Gets the room.
-        /// </summary>
-        public string Room { get; }
 
         /// <summary>
         /// Gets the timestamp.

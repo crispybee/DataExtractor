@@ -20,44 +20,14 @@ namespace DataExtractor
     public class Program
     {
         /// <summary>
-        /// The phone name 1.
+        /// The all client phone data list.
         /// </summary>
-        private const string PhoneName1 = "Tim";
+        private static readonly List<ClientData> AllClientPhoneDataList = new List<ClientData>();
 
         /// <summary>
-        /// The phone name 2.
+        /// The final data list.
         /// </summary>
-        private const string PhoneName2 = "Andi";
-
-        /// <summary>
-        /// The phone name 3.
-        /// </summary>
-        private const string PhoneName3 = "Kemal";
-
-        /// <summary>
-        /// The phone name 4.
-        /// </summary>
-        private const string PhoneName4 = "Thomas";
-
-        /// <summary>
-        /// The phone data of Andreas.
-        /// </summary>
-        private static readonly List<PhoneData> AndiPhoneData = new List<PhoneData>();
-
-        /// <summary>
-        /// The tim phone data.
-        /// </summary>
-        private static readonly List<PhoneData> TimPhoneData = new List<PhoneData>();
-
-        /// <summary>
-        /// The phone data of Kemal.
-        /// </summary>
-        private static readonly List<PhoneData> KemalPhoneData = new List<PhoneData>();
-
-        /// <summary>
-        /// The Thomas phone data.
-        /// </summary>
-        private static readonly List<PhoneData> ThomasPhoneData = new List<PhoneData>();
+        private static readonly List<ClientRoomData> FinalDataList = new List<ClientRoomData>();
 
         /// <summary>
         /// The main.
@@ -67,17 +37,16 @@ namespace DataExtractor
         /// </param>
         private static void Main(string[] args)
         {
-            Directory.CreateDirectory("Tim");
-            Directory.CreateDirectory("Andi");
-            Directory.CreateDirectory("Kemal");
-            Directory.CreateDirectory("Thomas");
+            string currentPath = AppDomain.CurrentDomain.BaseDirectory;
+            var excelChartCreator = new ExcelChartCreator();
+            var reader = new StreamReader(File.OpenRead(currentPath + args[0]));
 
-            var reader = new StreamReader(File.OpenRead(@"VS.csv"));
-            
             var timestamp = new List<string>();
+            var roomEntry = new List<string>();
             var id = new List<string>();
             var mac = new List<string>();
             var distance = new List<string>();
+            var phoneIdList = new List<string>();
 
             // Get only relevant values
             while (!reader.EndOfStream)
@@ -88,114 +57,132 @@ namespace DataExtractor
                     var values = line.Split(';');
 
                     timestamp.Add(values[1]);
-                    id.Add(values[2]);
+                    roomEntry.Add(values[2]);
+                    id.Add(values[3]);
                     mac.Add(values[4]);
                     distance.Add(values[5]);
                 }
             }
+            
+            // Get all phone names and create a folder for each one
+            foreach (string name in id)
+            {
+                if (!phoneIdList.Contains(name))
+                {
+                    phoneIdList.Add(name);
+                    AllClientPhoneDataList.Add(new ClientData(name, new List<PhoneData>()));
+                }
+            }
 
             // Split phones to individual lists
-            for (int i = 0; i < timestamp.Count; i++)
+            for (int i = 0; i < id.Count; i++)
             {
-                if (id[i] == PhoneName1)
+                var phoneData = new PhoneData(timestamp[i], roomEntry[i], mac[i], distance[i]);
+
+                for (int j = 0; j < phoneIdList.Count; j++)
                 {
-                    TimPhoneData.Add(new PhoneData(timestamp[i], mac[i], distance[i]));
-                }
-                else if (id[i] == PhoneName2)
-                {
-                    AndiPhoneData.Add(new PhoneData(timestamp[i], mac[i], distance[i]));
-                }
-                else if (id[i] == PhoneName3)
-                {
-                    KemalPhoneData.Add(new PhoneData(timestamp[i], mac[i], distance[i]));
-                }
-                else if (id[i] == PhoneName4)
-                {
-                    ThomasPhoneData.Add(new PhoneData(timestamp[i], mac[i], distance[i]));
+                    if (id[i] == phoneIdList[j])
+                    {
+                        // Add phoneData to fitting names as PhoneData objects
+                        AllClientPhoneDataList.First(x => x.ClientName.Equals(phoneIdList[j])).PhoneData.Add(phoneData);
+                    }
                 }
             }
 
-            var macListArrayTim = new List<List<PhoneData>>();
-            var macListArrayAndi = new List<List<PhoneData>>();
-            var macListArrayKemal = new List<List<PhoneData>>();
-            var macListArrayThomas = new List<List<PhoneData>>();
-
-            // group list by mac adress by Tim
-            foreach (var phoneDataMacList in TimPhoneData.GroupBy(x => x.Mac))
+            // Inject and order all the data into FinalDataList
+            foreach (var clientData in AllClientPhoneDataList)
             {
-                var groupedMacList = phoneDataMacList.ToList();
-                macListArrayTim.Add(groupedMacList);
-            }
+                FinalDataList.Add(new ClientRoomData(clientData.ClientName, new List<RoomData>()));
 
-            // group list by mac adress by Andi
-            foreach (var phoneDataMacList in AndiPhoneData.GroupBy(x => x.Mac))
-            {
-                var groupedMacList = phoneDataMacList.ToList();
-                macListArrayAndi.Add(groupedMacList);
-            }
-
-            // group list by mac adress by Kemal
-            foreach (var phoneDataMacList in KemalPhoneData.GroupBy(x => x.Mac))
-            {
-                var groupedMacList = phoneDataMacList.ToList();
-                macListArrayKemal.Add(groupedMacList);
-            }
-
-            // group list by mac adress by Thomas
-            foreach (var phoneDataMacList in ThomasPhoneData.GroupBy(x => x.Mac))
-            {
-                var groupedMacList = phoneDataMacList.ToList();
-                macListArrayThomas.Add(groupedMacList);
-            }
-
-            for (int i = 0; i < macListArrayTim.Count; i++)
-            {
-                var writer = new StreamWriter(File.OpenWrite(PhoneName1 + "\\" + i + @".csv"));
-
-                foreach (var phoneData in macListArrayTim[i])
+                foreach (var roomGroup in clientData.PhoneData.GroupBy(x => x.Room))
                 {
-                    writer.WriteLine(phoneData.Timestamp + ";" + phoneData.Mac + ";" + phoneData.Distance);
+                    var roomList = roomGroup.ToList();
+                    var accessPointList = new List<AccessPoint>();
+                    
+                    foreach (var macGroup in roomList.GroupBy(x => x.Mac))
+                    {
+                        var macList = macGroup.ToList();
+                        var convertedRoomMacListToWifiDataList = new List<WifiData>();
+
+                        foreach (var phoneData in macList)
+                        {
+                            convertedRoomMacListToWifiDataList.Add(new WifiData(phoneData.Timestamp, phoneData.Mac, phoneData.Distance));
+                        }
+
+                        var accessPoint = new AccessPoint(macGroup.Key, convertedRoomMacListToWifiDataList);
+                        accessPointList.Add(accessPoint);
+                    }
+
+                    var roomData = new RoomData(roomGroup.Key, accessPointList);
+
+                    FinalDataList.Last().RoomData.Add(roomData);
+                }
+            }
+
+            foreach (var client in FinalDataList)
+            {
+                // for every client create a folder
+                Directory.CreateDirectory(client.ClientName);
+
+                foreach (var room in client.RoomData)
+                {
+                    // for every room of every client create subfolders
+                    Directory.CreateDirectory(client.ClientName + "\\" + room.RoomName);
+
+                    int counter = 0;
+
+                    foreach (var accessPoint in room.AccessPointList)
+                    {
+                        string t = client.ClientName + "\\" + room.RoomName + "\\" + counter + ".csv";
+                        var writer = new StreamWriter(File.OpenWrite(t));
+
+                        // todo: write excel file with diagrams
+                        foreach (WifiData wifiData in accessPoint.WifiData)
+                        {
+                            writer.WriteLine(wifiData.Timestamp + ";" + wifiData.Mac + ";" + wifiData.Distance);
+                        }
+
+                        writer.Close();
+
+                        counter++;
+                    }
+                }
+            }
+
+            /*
+            int h = 0;
+            var listOfGroupedRoomsAndGroupedMacs = new List<PhoneData>();
+
+            foreach (var list in roomListArrayTim)
+            {
+                int j = 0;
+
+                foreach (var phoneData in list.GroupBy(x => x.Mac))
+                {
+                    var phoneDataListGroupedByMac = new List<PhoneData>();
+
+                    phoneDataListGroupedByMac = phoneData.ToList();
+                    listOfGroupedRoomsAndGroupedMacs.AddRange(phoneDataListGroupedByMac);
+
+                    var writer = new StreamWriter(File.OpenWrite(PhoneName1 + "\\" + "grouped" + h + "_" + j + @".csv"));
+                    
+                    for (int i = 0; i < phoneDataListGroupedByMac.Count; i++)
+                    {
+                        writer.WriteLine(phoneDataListGroupedByMac[i].Timestamp + ";" + phoneDataListGroupedByMac[i].Room + ";" + phoneDataListGroupedByMac[i].Mac + ";" + phoneDataListGroupedByMac[i].Distance);
+                    }
+
+                    writer.Close();
+
+                    phoneDataListGroupedByMac.Clear();
+                    j++;
                 }
 
-                writer.Close();
+                h++;
             }
 
-            for (int i = 0; i < macListArrayAndi.Count; i++)
-            {
-                var writer = new StreamWriter(File.OpenWrite(PhoneName2 + "\\" + i + @".csv"));
-
-                foreach (var phoneData in macListArrayAndi[i])
-                {
-                    writer.WriteLine(phoneData.Timestamp + ";" + phoneData.Mac + ";" + phoneData.Distance);
-                }
-
-                writer.Close();
-            }
-
-            for (int i = 0; i < macListArrayKemal.Count; i++)
-            {
-                var writer = new StreamWriter(File.OpenWrite(PhoneName3 + "\\" + i + @".csv"));
-
-                foreach (var phoneData in macListArrayKemal[i])
-                {
-                    writer.WriteLine(phoneData.Timestamp + ";" + phoneData.Mac + ";" + phoneData.Distance);
-                }
-
-                writer.Close();
-            }
-
-            for (int i = 0; i < macListArrayThomas.Count; i++)
-            {
-                var writer = new StreamWriter(File.OpenWrite(PhoneName4 + "\\" + i + @".csv"));
-
-                foreach (var phoneData in macListArrayThomas[i])
-                {
-                    writer.WriteLine(phoneData.Timestamp + ";" + phoneData.Mac + ";" + phoneData.Distance);
-                }
-
-                writer.Close();
-            }
-
+            Console.WriteLine(listOfGroupedRoomsAndGroupedMacs);
+            */
+            excelChartCreator.CreateTable(FinalDataList);
             Console.WriteLine("END");
         }
     }
