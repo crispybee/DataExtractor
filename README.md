@@ -5,9 +5,9 @@ The source file must be a CSV with the following column order (without headers!)
 
 | UUID                     | Timestamp     | Room  / Waypoint Name | Phone Name | Mac Adress        | Distance |
 |--------------------------|---------------|-----------------------|------------|-------------------|----------|
-| 580796c6ea039b21fb734c06 | 1476892358679 | E219                  | Phone1     | 44:ad:d9:57:55:6f | 22,81    |
-| 580796c6ea039b21fb734c06 | 1476892358679 | E219                  | Phone1     | 44:ad:d9:57:80:3f | 12,88    |
-| 5807970eea039b21fb734c3e | 1476892430014 | E217                  | Phone2     | 44:ad:d9:70:a8:c0 | 4,33     |
+| 580796c6ea039b21fb734c06 | 1476892358679 | E219                  | Phone1     | 44:a1:d9:57:55:6f | 22,81    |
+| 580796c6ea039b21fb734c06 | 1476892358679 | E219                  | Phone1     | 44:a1:d9:57:80:3f | 12,88    |
+| 5807970eea039b21fb734c3e | 1476892430014 | E217                  | Phone2     | 44:a1:d9:70:a8:c0 | 4,33     |
 | etc.                     | etc.          | etc.                  | etc.       | etc.              | etc.     |
 
 ## Run
