@@ -118,8 +118,6 @@ namespace DataExtractor
                     FinalDataList.Last().RoomData.Add(roomData);
                 }
             }
-            
-            // todo: write to files
 
             foreach (var client in FinalDataList)
             {
@@ -138,6 +136,7 @@ namespace DataExtractor
                         string t = client.ClientName + "\\" + room.RoomName + "\\" + counter + ".csv";
                         var writer = new StreamWriter(File.OpenWrite(t));
 
+                        // todo: write excel file with diagrams
                         foreach (WifiData wifiData in accessPoint.WifiData)
                         {
                             writer.WriteLine(wifiData.Timestamp + ";" + wifiData.Mac + ";" + wifiData.Distance);
@@ -183,7 +182,7 @@ namespace DataExtractor
 
             Console.WriteLine(listOfGroupedRoomsAndGroupedMacs);
             */
-            // excelChartCreator.CreateTable();
+            excelChartCreator.CreateTable(FinalDataList);
             Console.WriteLine("END");
         }
     }
